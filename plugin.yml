@@ -1,0 +1,48 @@
+name: Create Datadog Event
+description: Creates Datadog events
+author: https://github.com/envato
+requirements:
+  - sed
+  - curl
+configuration:
+  properties:
+    datadog_host:
+      type: string
+      default: https://api.datadoghq.com
+    api_key:
+      type: string
+    title:
+      type: string
+    text:
+      type: string
+    priority:
+      type: string
+      default: normal
+      enum:
+        - normal
+        - low
+    host:
+      type: string
+    tags:
+      type: array
+      items:
+        type: string
+    alert_type:
+      type: string
+      default: info
+      enum:
+        - error
+        - warning
+        - info
+        - success
+    aggregation_key:
+      type: string
+    source_type_name:
+      type: string
+    related_event_id:
+      type: integer
+  required:
+    - api_key
+    - title
+    - text
+  additionalProperties: false
