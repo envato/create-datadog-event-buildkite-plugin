@@ -19,17 +19,17 @@ Inspired by a desire to show releases on metrics graphs, and to include informat
 ```yml
 steps:
   - plugins:
-      envato/create-datadog-event#v0.0.1:
-        api_key: $DATADOG_API_KEY
-        aggregation_key: $BUILDKITE_BUILD_ID
-        title: Deploying $BUILDKITE_PIPELINE_SLUG
-        text: >
-          Deploying $BUILDKITE_BRANCH/$BUILDKITE_COMMIT on behalf of
-          $BUILDKITE_BUILD_CREATOR. More details: $BUILDKITE_BUILD_URL
-        tags:
-          - event-type:deployment
-          - state:started
-          - branch:$BUILDKITE_BRANCH
+      - envato/create-datadog-event#v0.0.1:
+          api_key: $DATADOG_API_KEY
+          aggregation_key: $BUILDKITE_BUILD_ID
+          title: Deploying $BUILDKITE_PIPELINE_SLUG
+          text: >
+            Deploying $BUILDKITE_BRANCH/$BUILDKITE_COMMIT on behalf of
+            $BUILDKITE_BUILD_CREATOR. More details: $BUILDKITE_BUILD_URL
+          tags:
+            - event-type:deployment
+            - state:started
+            - branch:$BUILDKITE_BRANCH
     # don't fail the deploy if the event failed
     soft_fail:
       - exit_status: '*'
