@@ -26,56 +26,50 @@ make_body() {
   local aggregation_key="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_AGGREGATION_KEY:-}"
   local source_type_name="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_SOURCE_TYPE_NAME:-}"
   local related_event_id="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_RELATED_EVENT_ID:-}"
+  local body
 
-  local tags=""
+  local tags=( )
 
   while IFS=$'\n' read -r tag ; do
-    tags="$tags, \"$(escape_json_string "$tag")\""
+    tags+=( "$tag" )
   done < <(plugin_read_list TAGS)
 
-  tags="${tags:2}"
-
-  echo '{'
-  echo "  $(escaped_pair title "$msg_title")"
-  echo " ,$(escaped_pair text "$msg_text")"
-  echo " ,$(escaped_pair priority "$priority")"
-  echo " ,$(escaped_pair alert_type "$alert_type")"
+  body="{}"
+  body="$(add_json_property "$body" title "$msg_title")"
+  body="$(add_json_property "$body" text "$msg_text")"
+  body="$(add_json_property "$body" priority "$priority")"
+  body="$(add_json_property "$body" alert_type "$alert_type")"
 
   if [ -n "$host" ]; then
-    echo " ,$(escaped_pair host "$host")"
+    body="$(add_json_property "$body" host "$host")"
   fi
 
   if [ -n "$aggregation_key" ]; then
-    echo " ,$(escaped_pair aggregation_key "$aggregation_key")"
+    body="$(add_json_property "$body" aggregation_key "$aggregation_key")"
   fi
 
   if [ -n "$related_event_id" ]; then
-    echo " ,$(escaped_pair related_event_id "$related_event_id")"
+    body="$(add_json_property "$body" related_event_id "$related_event_id")"
   fi
 
   if [ -n "$source_type_name" ]; then
-    echo " ,$(escaped_pair source_type_name "$source_type_name")"
+    body="$(add_json_property "$body" source_type_name "$source_type_name")"
   fi
 
-  if [ -n "$tags" ]; then
-    echo ' ,"tags": ['"$tags"']'
+  if [ "${#tags[@]}" -ne 0 ]; then
+    body="$(echo "$body" | jq '. | .["tags"]=$ARGS.positional' --args "${tags[@]}")"
   fi
 
-  echo '}'
+  echo "$body"
 }
 
-# probably buggy, PRs welcome
-escape_json_string() {
-  local sed_cmd
-  sed_cmd="$(command -v sed)"
+# technique from https://stackoverflow.com/a/38862221
+add_json_property() {
+  to="$1"
+  property="$2"
+  value="$3"
 
-  # use gsed if it's available
-  if command -v gsed >/dev/null 2>&1; then
-    sed_cmd="$(command -v gsed)"
-  fi
-
-  # escape slashes, tabs, newlines, then double-quotes
-  echo "$1" | $sed_cmd -Ee 's/\\/\\\\/g' | $sed_cmd -Ee 's/\t/\\t/g' | $sed_cmd -Ee ':a;N;$!ba;s/\r{0,1}\n/\\n/g' | $sed_cmd -Ee 's/"/\\"/g'
+  echo "$to" | jq ". | .[\"$property\"]=\$value" --arg value "$value"
 }
 
 # https://github.com/buildkite-plugins/shellcheck-buildkite-plugin/blob/08694ed7f660dfd21e7639e8e861f23ba605d351/hooks/command#L5-L20
@@ -94,10 +88,6 @@ plugin_read_list() {
   elif [[ -n "${!prefix:-}" ]]; then
     echo "${!prefix}"
   fi
-}
-
-escaped_pair() {
-  echo "\"$1\": \"$(escape_json_string "$2")\""
 }
 
 main
