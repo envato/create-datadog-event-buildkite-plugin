@@ -5,7 +5,7 @@ main() {
   local datadog_host="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_DATADOG_HOST:-https://api.datadoghq.com}"
   local api_key="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_API_KEY}"
 
-  curl -X POST \
+  curl -fsS -X POST \
     -H "Content-type: application/json" \
     -H "DD-API-KEY: ${api_key}" \
     -d "$(make_body)" \
