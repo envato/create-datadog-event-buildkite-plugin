@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Ensure cURL returns an error on a failed request
 
+### Fixed
+
+- Check that a value was provided for the API key
+
 ## [0.0.1] - 2020-04-17
 
 ### Added
