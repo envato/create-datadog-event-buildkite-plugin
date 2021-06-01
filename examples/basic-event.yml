@@ -1,0 +1,8 @@
+steps:
+  - plugins:
+      - envato/create-datadog-event#main:
+          api_key: $DATADOG_API_KEY
+          title: "Hello, world!"
+          text: Testing the create-datadog-event-buildkite-plugin
+          tags:
+            - debug:true

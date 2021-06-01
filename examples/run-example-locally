@@ -1,0 +1,34 @@
+#!/usr/bin/env bash
+
+set -eu
+
+# a crude way to run the example using the current version of the code, including changes that haven't been committed
+
+if [[ "$#" -lt 1 ]] || ! [[ -f "$1" ]]; then
+  echo "usage: $0 <example-path> [...bk local run args]"
+  echo
+  echo "  e.g. $0 examples/basic-event.yml -E DATADOG_API_KEY="'"$DATADOG_API_KEY"'
+  exit 1
+fi
+
+example="$1"
+shift
+bk_args=( "$@" )
+
+run_dir="$(mktemp -d)"
+
+cleanup() {
+  echo "Removing ${run_dir}"
+  rm -rf -- "$run_dir"
+}
+trap 'cleanup' EXIT
+
+cp -r . "${run_dir}/create-datadog-event-buildkite-plugin"
+cp -r ./.git "${run_dir}/.git"
+
+sed -Ee "s%envato/create-datadog-event#main%file://./create-datadog-event-buildkite-plugin%" "$example" > "${run_dir}/pipeline.yml" # ./tmp/pipeline.yml
+
+cd "$run_dir"
+echo "Running pipeline in $(pwd)"
+
+bk local run ./pipeline.yml "$@"
