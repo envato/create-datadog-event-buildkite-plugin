@@ -13,7 +13,6 @@ fi
 
 example="$1"
 shift
-bk_args=( "$@" )
 
 run_dir="$(mktemp -d)"
 
