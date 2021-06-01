@@ -7,9 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [0.1.0] - 2021-06-01
+
 ### Changed
 
 - Ensure cURL returns an error on a failed request
+- Escape JSON request body using `jq`
 
 ### Fixed
 
@@ -23,5 +26,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Limited string escaping for supplied values
 - Configuration for most event parameters
 
-[Unreleased]: https://github.com/envato/create-datadog-event-buildkite-plugin/compare/v0.0.1...HEAD
+[Unreleased]: https://github.com/envato/create-datadog-event-buildkite-plugin/compare/v0.1.0...HEAD
+[0.1.0]: https://github.com/envato/create-datadog-event-buildkite-plugin/releases/tag/v0.0.1...v0.1.0
 [0.0.1]: https://github.com/envato/create-datadog-event-buildkite-plugin/releases/tag/v0.0.1

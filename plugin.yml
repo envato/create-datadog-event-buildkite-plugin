@@ -2,7 +2,7 @@ name: Create Datadog Event
 description: Creates Datadog events
 author: https://github.com/envato
 requirements:
-  - sed
+  - jq
   - curl
 configuration:
   properties:
