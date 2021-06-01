@@ -11,7 +11,6 @@ Inspired by a desire to show releases on metrics graphs, and to include informat
 ## Features
 
 - Creates a Datadog event
-- Basic JSON escaping, in case variables contain backslashes, quotes, tabs, or newlines
 - Supports most properties available in the Datadog event API
 
 ## Example
