@@ -1,92 +1,33 @@
 #!/bin/bash
 set -euo pipefail
 
+# https://stackoverflow.com/a/246128
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
+
 main() {
-  local datadog_host="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_DATADOG_HOST:-https://api.datadoghq.com}"
   local api_key="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_API_KEY}"
+  local datadog_host="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_DATADOG_HOST:-https://api.datadoghq.com}"
+  local payload_body
 
   if [[ -z "$api_key" ]]; then
     echo "no API key was provided"
     exit 1
   fi
 
+  payload_body="$(make_body)"
+
   curl -fsS -X POST \
     -H "Content-type: application/json" \
     -H "DD-API-KEY: ${api_key}" \
-    -d "$(make_body)" \
+    -d "$payload_body" \
     "${datadog_host}/api/v1/events"
 }
 
 make_body() {
-  local msg_title="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_TITLE}"
-  local msg_text="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_TEXT}"
-  local priority="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_PRIORITY:-normal}"
-  local host="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_HOST:-}"
-  local alert_type="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_ALERT_TYPE:-info}"
-  local aggregation_key="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_AGGREGATION_KEY:-}"
-  local source_type_name="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_SOURCE_TYPE_NAME:-}"
-  local related_event_id="${BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_RELATED_EVENT_ID:-}"
-  local body
-
-  local tags=( )
-
-  while IFS=$'\n' read -r tag ; do
-    tags+=( "$tag" )
-  done < <(plugin_read_list TAGS)
-
-  body="{}"
-  body="$(add_json_property "$body" title "$msg_title")"
-  body="$(add_json_property "$body" text "$msg_text")"
-  body="$(add_json_property "$body" priority "$priority")"
-  body="$(add_json_property "$body" alert_type "$alert_type")"
-
-  if [ -n "$host" ]; then
-    body="$(add_json_property "$body" host "$host")"
-  fi
-
-  if [ -n "$aggregation_key" ]; then
-    body="$(add_json_property "$body" aggregation_key "$aggregation_key")"
-  fi
-
-  if [ -n "$related_event_id" ]; then
-    body="$(add_json_property "$body" related_event_id "$related_event_id")"
-  fi
-
-  if [ -n "$source_type_name" ]; then
-    body="$(add_json_property "$body" source_type_name "$source_type_name")"
-  fi
-
-  if [ "${#tags[@]}" -ne 0 ]; then
-    body="$(echo "$body" | jq '. | .["tags"]=$ARGS.positional' --args "${tags[@]}")"
-  fi
-
-  echo "$body"
-}
-
-# technique from https://stackoverflow.com/a/38862221
-add_json_property() {
-  to="$1"
-  property="$2"
-  value="$3"
-
-  echo "$to" | jq ". | .[\"$property\"]=\$value" --arg value "$value"
-}
-
-# https://github.com/buildkite-plugins/shellcheck-buildkite-plugin/blob/08694ed7f660dfd21e7639e8e861f23ba605d351/hooks/command#L5-L20
-plugin_read_list() {
-  local prefix="BUILDKITE_PLUGIN_CREATE_DATADOG_EVENT_$1"
-  local parameter="${prefix}_0"
-
-  if [[ -n "${!parameter:-}" ]]; then
-    local i=0
-    local parameter="${prefix}_${i}"
-    while [[ -n "${!parameter:-}" ]]; do
-      echo "${!parameter}"
-      i=$((i+1))
-      parameter="${prefix}_${i}"
-    done
-  elif [[ -n "${!prefix:-}" ]]; then
-    echo "${!prefix}"
+  if command -v python3 >/dev/null; then
+    python3 "$DIR/construct_payload.py"
+  else
+    python "$DIR/construct_payload.py"
   fi
 }
 

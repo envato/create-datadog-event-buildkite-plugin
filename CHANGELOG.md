@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+- Escape JSON request body using `python`
+
+  The repositories for Amazon Linux 2 contain jq at version `1.5-1`, whereas the logic in 0.1.0 required functions from `1.6`.
+
 ## [0.1.0] - 2021-06-01
 
 ### Changed
