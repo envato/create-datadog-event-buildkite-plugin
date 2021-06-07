@@ -1,0 +1,18 @@
+steps:
+  - plugins:
+      - envato/create-datadog-event#main:
+          datadog_host: https://httpbin.org/anything
+          api_key: "Fake Datadog key"
+
+          title: "Hello, world!"
+          text: Testing the create-datadog-event-buildkite-plugin
+          priority: low
+          host: fakehost
+          alert_type: success
+          aggregation_key: value
+          source_type_name: Docker
+          related_event_id: 404
+          tags:
+            - debug:true
+            - http_binned:true
+            - no_prefix
