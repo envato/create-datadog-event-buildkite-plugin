@@ -18,7 +18,7 @@ Inspired by a desire to show releases on metrics graphs, and to include informat
 ```yml
 steps:
   - plugins:
-      - envato/create-datadog-event#v0.1.0:
+      - envato/create-datadog-event#v0.2.0:
           api_key: $DATADOG_API_KEY
           aggregation_key: $BUILDKITE_BUILD_ID
           title: Deploying $BUILDKITE_PIPELINE_SLUG
